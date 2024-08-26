@@ -3,7 +3,7 @@
   "short_name": "YTP",
   "description": "Use your tab bar as a playlist!",
   "manifest_version": 2,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Mathieu CAROFF",
   "icons": {
     "32": "icon/iconB32.png",
