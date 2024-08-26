@@ -1,0 +1,9 @@
+{
+  "name": "youtube-tab-playlist",
+  "packageManager": "yarn@4.1.1",
+  "author": "Mathieu CAROFF <mathieu.caroff@free.fr>",
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "@types/firefox-webext-browser": "^120.0.4"
+  }
+}
