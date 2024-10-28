@@ -3,25 +3,41 @@
   "short_name": "YTP",
   "description": "Use your tab bar as a playlist!",
   "manifest_version": 2,
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Mathieu CAROFF",
   "icons": {
+    "16": "icon/iconB16.png",
+    "19": "icon/iconB19.png",
     "32": "icon/iconB32.png",
+    "38": "icon/iconB38.png",
     "48": "icon/iconB48.png",
     "64": "icon/iconB64.png",
     "128": "icon/iconB128.png",
     "256": "icon/iconB256.png"
   },
-
+  "browser_action": {
+    "default_icon": {
+      "16": "icon/iconB16.png",
+      "19": "icon/iconB19.png",
+      "38": "icon/iconB38.png"
+    },
+    "default_title": "Youtube Tab Playlist",
+    "default_popup": "options/options.html"
+  },
+  "options_ui": {
+    "page": "options/options.html"
+  },
   "background": {
     "scripts": ["js/background.js"]
   },
-
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
       "js": ["js/content.js"]
     }
   ],
-  "permissions": ["tabs"]
+  "permissions": [
+    "storage",
+    "tabs"
+  ]
 }
