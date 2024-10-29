@@ -26,6 +26,10 @@ getVideoElement(30).then((video) => {
 
 chrome.runtime.onMessage.addListener((body, sender, sendResponse) => {
   if (body === "play") {
-    getVideoElement(6).then((video) => video.play())
+    getVideoElement(6).then(async (video) => {
+      video.click()
+      await new Promise((resolve) => setTimeout(() => resolve(0), 500))
+      video.play()
+    })
   }
 })

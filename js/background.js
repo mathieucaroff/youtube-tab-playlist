@@ -1,11 +1,7 @@
 // @ts-check
 
-if (localStorage['enabled'] === undefined) {
-  localStorage['enabled'] = true;
-}
-if (localStorage['close'] === undefined) {
-  localStorage['close'] = false;
-}
+localStorage["enabled"] ??= true
+localStorage["close"] ??= false
 
 /** @param {chrome.tabs.Tab} originTab */
 function close(originTab) {
@@ -14,6 +10,10 @@ function close(originTab) {
 
 /** @param {chrome.tabs.Tab} originTab */
 function handleVideoEnd(originTab) {
+  if (localStorage["enabled"] === "false") {
+    return
+  }
+
   chrome.tabs.query(
     {
       windowId: originTab.windowId,
@@ -28,8 +28,8 @@ function handleVideoEnd(originTab) {
       if (nextTab) {
         chrome.tabs.sendMessage(nextTab.id ?? -1, "play")
         chrome.tabs.update(nextTab.id ?? -1, { active: true })
-        if (localStorage['close'] === 'true') {
-          close(originTab);
+        if (localStorage["close"] === "true") {
+          close(originTab)
         }
       }
     }
@@ -37,7 +37,7 @@ function handleVideoEnd(originTab) {
 }
 
 chrome.runtime.onMessage.addListener((body, sender, sendResponse) => {
-  if (localStorage['enabled'] === 'true' && body === "video:ended" && sender.tab) {
+  if (body === "video:ended" && sender.tab) {
     handleVideoEnd(sender.tab)
   }
 })
