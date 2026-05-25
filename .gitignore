@@ -1,12 +1,15 @@
 /*
 
-!/icon/
-!/js/
+!/entrypoints/
+!/lib/
+!/public/
+!/ui/
 
 !/.editorconfig
 !.gitignore
 !/.prettierrc
 !/bun.lock
-!/manifest.json
 !/package.json
 !/README.md
+!/tsconfig.json
+!/wxt.config.ts
