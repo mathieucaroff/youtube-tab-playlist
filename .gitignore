@@ -6,8 +6,7 @@
 !/.editorconfig
 !.gitignore
 !/.prettierrc
-!/.yarnrc.yml
+!/bun.lock
 !/manifest.json
 !/package.json
 !/README.md
-!/yarn.lock

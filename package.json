@@ -1,6 +1,6 @@
 {
   "name": "youtube-tab-playlist",
-  "packageManager": "yarn@4.1.1",
+  "packageManager": "bun@1.2.16",
   "author": "Mathieu CAROFF <mathieu.caroff@free.fr>",
   "devDependencies": {
     "@types/chrome": "^0.0.270",
