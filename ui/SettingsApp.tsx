@@ -15,18 +15,27 @@ type SettingKey = keyof Settings
 
 const SETTING_LABELS: Record<
   SettingKey,
-  { title: string; description: string }
+  { icon: string; title: string; description: string }
 > = {
   enabled: {
+    icon: '▶',
     title: 'Enable extension',
     description:
       'Advance to the next YouTube watch tab when the current video finishes.',
   },
+  switchToNextTab: {
+    icon: '⇥',
+    title: 'Switch to next tab',
+    description:
+      'Make the next YouTube tab active when a video ends. Enable this if playback does not start otherwise.',
+  },
   closeCurrentTab: {
+    icon: '✕',
     title: 'Close current tab',
     description: 'Close the finished tab after the next tab becomes active.',
   },
   cycleToFirstTab: {
+    icon: '↻',
     title: 'Cycle to first tab',
     description:
       'When the last YouTube watch tab finishes, jump back to the first YouTube watch tab.',
@@ -59,6 +68,26 @@ export function SettingsApp({ mode }: SettingsAppProps) {
     setSettings(nextSettings)
   }
 
+  function getOptionStyleClassNames(key: SettingKey) {
+    if (key === 'enabled' || settings.enabled) {
+      return {
+        card: 'border-white/10 bg-white/5',
+        title: 'text-stone-100',
+        description: 'text-stone-400',
+        track: 'bg-stone-700',
+        thumb: 'bg-white',
+      }
+    }
+
+    return {
+      card: 'border-white/5 bg-black/20 grayscale',
+      title: 'text-stone-400',
+      description: 'text-stone-500',
+      track: 'bg-stone-900',
+      thumb: 'bg-stone-300',
+    }
+  }
+
   return (
     <main
       className={
@@ -72,29 +101,38 @@ export function SettingsApp({ mode }: SettingsAppProps) {
             <p className="text-xs font-semibold tracking-[0.3em] text-amber-300/80 uppercase">
               Youtube Tab Playlist
             </p>
-            <h1 className="text-2xl leading-tight font-semibold text-stone-50">
-              {mode === 'popup' ? 'Quick controls' : 'Extension settings'}
-            </h1>
-            <p className="max-w-md text-sm leading-6 text-stone-300">
-              Keep your YouTube watch tabs moving in tab order with typed,
-              synced settings.
-            </p>
+            {mode === 'options' && (
+              <h1 className="text-2xl leading-tight font-semibold text-stone-50">
+                Extension settings
+              </h1>
+            )}
           </header>
 
           <div className="space-y-3">
             {(Object.keys(SETTING_LABELS) as SettingKey[]).map((key) => {
               const label = SETTING_LABELS[key]
+              const twClassSet = getOptionStyleClassNames(key)
 
               return (
                 <label
                   key={key}
-                  className="flex items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                  className={`flex items-start justify-between gap-4 rounded-2xl border p-4 backdrop-blur-sm transition ${twClassSet.card}`}
                 >
                   <div className="space-y-1">
-                    <div className="text-sm font-medium text-stone-100">
-                      {label.title}
+                    <div
+                      className={`flex items-center gap-2 text-sm font-medium ${twClassSet.title}`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="inline-block w-3 text-center"
+                      >
+                        {label.icon}
+                      </span>
+                      <span>{label.title}</span>
                     </div>
-                    <div className="text-sm leading-5 text-stone-400">
+                    <div
+                      className={`text-sm leading-5 ${twClassSet.description}`}
+                    >
                       {label.description}
                     </div>
                   </div>
@@ -109,8 +147,12 @@ export function SettingsApp({ mode }: SettingsAppProps) {
                         void handleToggle(key, event.target.checked)
                       }}
                     />
-                    <span className="h-6 w-11 rounded-full bg-stone-700 transition peer-checked:bg-amber-400 peer-disabled:opacity-60" />
-                    <span className="pointer-events-none absolute left-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5" />
+                    <span
+                      className={`h-6 w-11 rounded-full transition peer-checked:bg-amber-400 peer-disabled:opacity-60 ${twClassSet.track}`}
+                    />
+                    <span
+                      className={`pointer-events-none absolute left-1 h-4 w-4 rounded-full transition peer-checked:translate-x-5 ${twClassSet.thumb}`}
+                    />
                   </span>
                 </label>
               )

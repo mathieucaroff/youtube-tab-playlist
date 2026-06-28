@@ -1,7 +1,7 @@
-import browser from "webextension-polyfill"
+import browser from 'webextension-polyfill'
 
-const VIDEO_SELECTOR = "video"
-const ATTACHED_ATTRIBUTE = "data-yt-tab-playlist-listener"
+const VIDEO_SELECTOR = 'video'
+const ATTACHED_ATTRIBUTE = 'data-yt-tab-playlist-listener'
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -17,7 +17,7 @@ async function getVideoElement(retries: number): Promise<HTMLVideoElement> {
     await wait(1000)
   }
 
-  throw new Error("YoutubeTabPlaylist: No video found")
+  throw new Error('YoutubeTabPlaylist: No video found')
 }
 
 async function playVideo() {
@@ -28,13 +28,13 @@ async function playVideo() {
 }
 
 function bindEndedListener(video: HTMLVideoElement) {
-  if (video.getAttribute(ATTACHED_ATTRIBUTE) === "true") {
+  if (video.getAttribute(ATTACHED_ATTRIBUTE) === 'true') {
     return
   }
 
-  video.setAttribute(ATTACHED_ATTRIBUTE, "true")
-  video.addEventListener("ended", () => {
-    void browser.runtime.sendMessage({ type: "video:ended" })
+  video.setAttribute(ATTACHED_ATTRIBUTE, 'true')
+  video.addEventListener('ended', () => {
+    void browser.runtime.sendMessage({ type: 'video:ended' })
   })
 }
 
@@ -48,15 +48,15 @@ async function ensureVideoListener() {
 }
 
 function isWatchUrl(url: URL | string) {
-  const parsed = typeof url === "string" ? new URL(url) : url
-  return parsed.hostname.endsWith("youtube.com") && parsed.pathname === "/watch"
+  const parsed = typeof url === 'string' ? new URL(url) : url
+  return parsed.hostname.endsWith('youtube.com') && parsed.pathname === '/watch'
 }
 
 export default defineContentScript({
-  matches: ["*://*.youtube.com/*"],
+  matches: ['*://*.youtube.com/*'],
   async main(ctx) {
     browser.runtime.onMessage.addListener((message) => {
-      if (message?.type === "play") {
+      if (message?.type === 'play') {
         return playVideo()
       }
 
@@ -78,7 +78,7 @@ export default defineContentScript({
       subtree: true,
     })
 
-    ctx.addEventListener(window, "wxt:locationchange", (event) => {
+    ctx.addEventListener(window, 'wxt:locationchange', (event) => {
       const nextUrl =
         event instanceof CustomEvent
           ? event.detail.newUrl

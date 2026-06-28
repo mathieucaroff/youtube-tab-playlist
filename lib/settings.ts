@@ -1,15 +1,16 @@
-import browser from "webextension-polyfill"
-import { z } from "zod"
+import browser from 'webextension-polyfill'
+import { z } from 'zod'
 
 const settingsSchema = z.object({
   enabled: z.boolean().default(true),
+  switchToNextTab: z.boolean().default(false),
   closeCurrentTab: z.boolean().default(false),
   cycleToFirstTab: z.boolean().default(false),
 })
 
 export type Settings = z.infer<typeof settingsSchema>
 
-const SETTINGS_KEY = "settings"
+const SETTINGS_KEY = 'settings'
 const DEFAULT_SETTINGS = settingsSchema.parse({})
 
 function normalizeSettings(input: unknown): Settings {
@@ -38,7 +39,7 @@ export async function updateSettings(
 
 export function onSettingsChanged(callback: (settings: Settings) => void) {
   browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "local" || !changes[SETTINGS_KEY]) {
+    if (areaName !== 'local' || !changes[SETTINGS_KEY]) {
       return
     }
 

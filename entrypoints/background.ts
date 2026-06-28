@@ -1,19 +1,19 @@
-import browser from "webextension-polyfill"
+import browser from 'webextension-polyfill'
 
-import { getSettings, onSettingsChanged } from "~/lib/settings"
+import { getSettings, onSettingsChanged } from '~/lib/settings'
 
 async function updateActionIcon(enabled: boolean) {
   await browser.action.setIcon({
     path: enabled
       ? {
-          16: "icon/iconB16.png",
-          19: "icon/iconB19.png",
-          38: "icon/iconB38.png",
+          16: 'icon/iconB16.png',
+          19: 'icon/iconB19.png',
+          38: 'icon/iconB38.png',
         }
       : {
-          16: "icon/iconB16-grey.png",
-          19: "icon/iconB19-grey.png",
-          38: "icon/iconB38-grey.png",
+          16: 'icon/iconB16-grey.png',
+          19: 'icon/iconB19-grey.png',
+          38: 'icon/iconB38-grey.png',
         },
   })
 }
@@ -24,7 +24,7 @@ async function syncActionIcon() {
 }
 
 async function closeTab(tabId: number | undefined) {
-  if (typeof tabId !== "number") {
+  if (typeof tabId !== 'number') {
     return
   }
 
@@ -35,8 +35,8 @@ async function handleVideoEnded(originTab: browser.Tabs.Tab) {
   const settings = await getSettings()
   if (
     !settings.enabled ||
-    typeof originTab.windowId !== "number" ||
-    typeof originTab.index !== "number"
+    typeof originTab.windowId !== 'number' ||
+    typeof originTab.index !== 'number'
   ) {
     return
   }
@@ -44,10 +44,10 @@ async function handleVideoEnded(originTab: browser.Tabs.Tab) {
   const youtubeTabs = (
     await browser.tabs.query({
       windowId: originTab.windowId,
-      url: "*://*.youtube.com/watch*",
+      url: '*://*.youtube.com/watch*',
     })
   )
-    .filter((tab) => typeof tab.index === "number")
+    .filter((tab) => typeof tab.index === 'number')
     .sort((left, right) => (left.index ?? 0) - (right.index ?? 0))
 
   if (youtubeTabs.length <= 1) {
@@ -62,8 +62,11 @@ async function handleVideoEnded(originTab: browser.Tabs.Tab) {
     return
   }
 
-  await browser.tabs.update(nextTab.id, { active: true })
-  await browser.tabs.sendMessage(nextTab.id, { type: "play" })
+  if (settings.switchToNextTab) {
+    await browser.tabs.update(nextTab.id, { active: true })
+  }
+
+  await browser.tabs.sendMessage(nextTab.id, { type: 'play' })
 
   if (settings.closeCurrentTab) {
     await closeTab(originTab.id)
@@ -80,7 +83,7 @@ export default defineBackground(() => {
   })
 
   browser.runtime.onMessage.addListener((message, sender) => {
-    if (message?.type === "video:ended" && sender.tab) {
+    if (message?.type === 'video:ended' && sender.tab) {
       return handleVideoEnded(sender.tab)
     }
 
