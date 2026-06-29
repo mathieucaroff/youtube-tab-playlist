@@ -2,6 +2,8 @@ import browser from 'webextension-polyfill'
 
 import { getSettings, onSettingsChanged } from '~/lib/settings'
 
+const seenTabIds = new Set<number>()
+
 async function updateActionIcon(enabled: boolean) {
   await browser.action.setIcon({
     path: enabled
@@ -31,7 +33,7 @@ async function closeTab(tabId: number | undefined) {
   await browser.tabs.remove(tabId)
 }
 
-async function handleVideoEnded(originTab: browser.Tabs.Tab) {
+async function handleVideoEnded(originTab: browser.Tabs.Tab, isMix = false) {
   const settings = await getSettings()
   if (
     !settings.enabled ||
@@ -62,11 +64,24 @@ async function handleVideoEnded(originTab: browser.Tabs.Tab) {
     return
   }
 
-  if (settings.switchToNextTab) {
+  // If the next tab has never been focused, activate it briefly to
+  // enable media playback, then switch back to the origin tab.
+  if (!seenTabIds.has(nextTab.id)) {
+    const [currentTab] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
     await browser.tabs.update(nextTab.id, { active: true })
+    if (currentTab) {
+      await browser.tabs.update(currentTab.id, { active: true })
+    }
   }
 
   await browser.tabs.sendMessage(nextTab.id, { type: 'play' })
+
+  if (isMix && typeof originTab.id === 'number') {
+    await browser.tabs.sendMessage(originTab.id, { type: 'pause' })
+  }
 
   if (settings.closeCurrentTab) {
     await closeTab(originTab.id)
@@ -74,6 +89,14 @@ async function handleVideoEnded(originTab: browser.Tabs.Tab) {
 }
 
 export default defineBackground(() => {
+  browser.tabs.onActivated.addListener(({ tabId }) => {
+    seenTabIds.add(tabId)
+  })
+
+  browser.tabs.onRemoved.addListener((tabId) => {
+    seenTabIds.delete(tabId)
+  })
+
   browser.runtime.onInstalled.addListener(() => {
     void syncActionIcon()
   })
@@ -84,7 +107,7 @@ export default defineBackground(() => {
 
   browser.runtime.onMessage.addListener((message, sender) => {
     if (message?.type === 'video:ended' && sender.tab) {
-      return handleVideoEnded(sender.tab)
+      return handleVideoEnded(sender.tab, message.mix === true)
     }
 
     return undefined

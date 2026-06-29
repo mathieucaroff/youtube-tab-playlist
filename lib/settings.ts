@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 const settingsSchema = z.object({
   enabled: z.boolean().default(true),
-  switchToNextTab: z.boolean().default(false),
   closeCurrentTab: z.boolean().default(false),
   cycleToFirstTab: z.boolean().default(false),
 })

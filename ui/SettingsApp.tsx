@@ -23,12 +23,6 @@ const SETTING_LABELS: Record<
     description:
       'Advance to the next YouTube watch tab when the current video finishes.',
   },
-  switchToNextTab: {
-    icon: '⇥',
-    title: 'Switch to next tab',
-    description:
-      'Make the next YouTube tab active when a video ends. Enable this if playback does not start otherwise.',
-  },
   closeCurrentTab: {
     icon: '✕',
     title: 'Close current tab',

@@ -27,6 +27,41 @@ async function playVideo() {
   await video.play()
 }
 
+async function pauseVideoAtStart() {
+  try {
+    const video = await getVideoElement(6)
+
+    if (video.ended) {
+      // The current video has already ended. YouTube will immediately begin
+      // loading the next mix item on the same element. Wait for `loadstart`
+      // so that our pause() call lands on the incoming video, not the
+      // already-ended one where it would have no effect.
+      await new Promise<void>((resolve) => {
+        const onLoadStart = () => {
+          video.removeEventListener('loadstart', onLoadStart)
+          clearTimeout(timeout)
+          resolve()
+        }
+        const timeout = setTimeout(() => {
+          video.removeEventListener('loadstart', onLoadStart)
+          resolve()
+        }, 200)
+        video.addEventListener('loadstart', onLoadStart)
+      })
+    }
+
+    video.pause()
+    video.currentTime = 0
+  } catch (error) {
+    console.warn(error)
+  }
+}
+
+function isMixUrl(url: URL | string): boolean {
+  const parsed = typeof url === 'string' ? new URL(url) : url
+  return parsed.pathname === '/watch' && parsed.searchParams.has('list')
+}
+
 function bindEndedListener(video: HTMLVideoElement) {
   if (video.getAttribute(ATTACHED_ATTRIBUTE) === 'true') {
     return
@@ -34,7 +69,10 @@ function bindEndedListener(video: HTMLVideoElement) {
 
   video.setAttribute(ATTACHED_ATTRIBUTE, 'true')
   video.addEventListener('ended', () => {
-    void browser.runtime.sendMessage({ type: 'video:ended' })
+    void browser.runtime.sendMessage({
+      type: 'video:ended',
+      mix: isMixUrl(window.location.href),
+    })
   })
 }
 
@@ -58,6 +96,9 @@ export default defineContentScript({
     browser.runtime.onMessage.addListener((message) => {
       if (message?.type === 'play') {
         return playVideo()
+      }
+      if (message?.type === 'pause') {
+        return pauseVideoAtStart()
       }
 
       return undefined
